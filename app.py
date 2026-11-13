@@ -41,7 +41,7 @@ if prompt:=st.chat_input(placeholder="what is machine learning"):
     st.chat_message("user").write(prompt)
 
     llm = ChatGroq(groq_api_key = api_key, model ="openai/gpt-oss-120b",streaming=True)
-    llm_with_tools = llm.bind_tools([search, wiki, arxiv])
+    tools = tools[search, wiki, arxiv]
 
     # Tool calling agents require a ChatPromptTemplate with an agent_scratchpad
     prompt_template = ChatPromptTemplate.from_messages([
@@ -51,9 +51,9 @@ if prompt:=st.chat_input(placeholder="what is machine learning"):
         MessagesPlaceholder("agent_scratchpad"),
     ])
 
-    agent = create_tool_calling_agent(llm_with_tools,llm, prompt_template)
+    agent = create_tool_calling_agent(llm, tools, prompt_template)
 
-    search_agent = AgentExecutor(agent=agent, tools=llm_with_tools, verbose = True)
+    search_agent = AgentExecutor(agent=agent, tools=tools, verbose = True)
 
     with st.chat_message("assistant"):
         st_cb= StreamlitCallbackHandler(st.container(),expand_new_thoughts=False)
@@ -63,7 +63,7 @@ if prompt:=st.chat_input(placeholder="what is machine learning"):
         ]
         response = search_agent.invoke(
             {"input": prompt, "chat_history": chat_history}, 
-            callbacks=[st_cb]
+            config = {"callbacks":[st_cb]}
         )
 
         # Extract the final string output from the response dictionary
