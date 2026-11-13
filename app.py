@@ -41,7 +41,7 @@ if prompt:=st.chat_input(placeholder="what is machine learning"):
     st.chat_message("user").write(prompt)
 
     llm = ChatGroq(groq_api_key = api_key, model ="openai/gpt-oss-120b",streaming=True)
-    tools = tools[search, wiki, arxiv]
+    tools = [search, wiki, arxiv]
 
     # Tool calling agents require a ChatPromptTemplate with an agent_scratchpad
     prompt_template = ChatPromptTemplate.from_messages([
